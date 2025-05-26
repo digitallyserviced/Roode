@@ -277,5 +277,180 @@ void Roode::publish_sensor_configuration(Zone *entry, Zone *exit, bool isMax) {
     exit_roi_width_sensor->publish_state(exit->roi->width);
   }
 }
+
+// Service method implementations
+void Roode::set_sampling_size_service(uint8_t size) {
+  if (size > 0 && size <= 10) {
+    samples = size;
+    entry->set_max_samples(size);
+    exit->set_max_samples(size);
+    ESP_LOGI(TAG, "Sampling size set to: %d", size);
+  } else {
+    ESP_LOGW(TAG, "Invalid sampling size: %d. Must be between 1 and 10", size);
+  }
+}
+
+void Roode::set_max_threshold_percentage(uint8_t percentage) {
+  entry->threshold->set_max_percentage(percentage);
+  exit->threshold->set_max_percentage(percentage);
+  entry->threshold->max = (entry->threshold->idle * percentage) / 100;
+  exit->threshold->max = (exit->threshold->idle * percentage) / 100;
+  ESP_LOGI(TAG, "Max threshold percentage set to: %d%%", percentage);
+}
+
+void Roode::set_min_threshold_percentage(uint8_t percentage) {
+  entry->threshold->set_min_percentage(percentage);
+  exit->threshold->set_min_percentage(percentage);
+  entry->threshold->min = (entry->threshold->idle * percentage) / 100;
+  exit->threshold->min = (exit->threshold->idle * percentage) / 100;
+  ESP_LOGI(TAG, "Min threshold percentage set to: %d%%", percentage);
+}
+
+void Roode::set_max_threshold_exact(uint16_t threshold_mm) {
+  entry->threshold->set_max(threshold_mm);
+  exit->threshold->set_max(threshold_mm);
+  ESP_LOGI(TAG, "Max threshold set to: %dmm", threshold_mm);
+}
+
+void Roode::set_min_threshold_exact(uint16_t threshold_mm) {
+  entry->threshold->set_min(threshold_mm);
+  exit->threshold->set_min(threshold_mm);
+  ESP_LOGI(TAG, "Min threshold set to: %dmm", threshold_mm);
+}
+
+void Roode::set_entry_max_threshold_percentage(uint8_t percentage) {
+  entry->threshold->set_max_percentage(percentage);
+  entry->threshold->max = (entry->threshold->idle * percentage) / 100;
+  ESP_LOGI(TAG, "Entry max threshold percentage set to: %d%%", percentage);
+}
+
+void Roode::set_entry_min_threshold_percentage(uint8_t percentage) {
+  entry->threshold->set_min_percentage(percentage);
+  entry->threshold->min = (entry->threshold->idle * percentage) / 100;
+  ESP_LOGI(TAG, "Entry min threshold percentage set to: %d%%", percentage);
+}
+
+void Roode::set_exit_max_threshold_percentage(uint8_t percentage) {
+  exit->threshold->set_max_percentage(percentage);
+  exit->threshold->max = (exit->threshold->idle * percentage) / 100;
+  ESP_LOGI(TAG, "Exit max threshold percentage set to: %d%%", percentage);
+}
+
+void Roode::set_exit_min_threshold_percentage(uint8_t percentage) {
+  exit->threshold->set_min_percentage(percentage);
+  exit->threshold->min = (exit->threshold->idle * percentage) / 100;
+  ESP_LOGI(TAG, "Exit min threshold percentage set to: %d%%", percentage);
+}
+
+void Roode::set_entry_max_threshold_exact(uint16_t threshold_mm) {
+  entry->threshold->set_max(threshold_mm);
+  ESP_LOGI(TAG, "Entry max threshold set to: %dmm", threshold_mm);
+}
+
+void Roode::set_entry_min_threshold_exact(uint16_t threshold_mm) {
+  entry->threshold->set_min(threshold_mm);
+  ESP_LOGI(TAG, "Entry min threshold set to: %dmm", threshold_mm);
+}
+
+void Roode::set_exit_max_threshold_exact(uint16_t threshold_mm) {
+  exit->threshold->set_max(threshold_mm);
+  ESP_LOGI(TAG, "Exit max threshold set to: %dmm", threshold_mm);
+}
+
+void Roode::set_exit_min_threshold_exact(uint16_t threshold_mm) {
+  exit->threshold->set_min(threshold_mm);
+  ESP_LOGI(TAG, "Exit min threshold set to: %dmm", threshold_mm);
+}
+
+void Roode::set_roi_size(uint8_t width, uint8_t height) {
+  set_entry_roi_size(width, height);
+  set_exit_roi_size(width, height);
+  ESP_LOGI(TAG, "ROI size set to: %dx%d", width, height);
+}
+
+void Roode::set_entry_roi_size(uint8_t width, uint8_t height) {
+  entry->roi_override->width = width;
+  entry->roi_override->height = height;
+  entry->roi->width = width;
+  entry->roi->height = height;
+  ESP_LOGI(TAG, "Entry ROI size set to: %dx%d", width, height);
+}
+
+void Roode::set_exit_roi_size(uint8_t width, uint8_t height) {
+  exit->roi_override->width = width;
+  exit->roi_override->height = height;
+  exit->roi->width = width;
+  exit->roi->height = height;
+  ESP_LOGI(TAG, "Exit ROI size set to: %dx%d", width, height);
+}
+
+void Roode::set_entry_roi_center(uint8_t center) {
+  entry->roi_override->center = center;
+  entry->roi->center = center;
+  ESP_LOGI(TAG, "Entry ROI center set to: %d", center);
+}
+
+void Roode::set_exit_roi_center(uint8_t center) {
+  exit->roi_override->center = center;
+  exit->roi->center = center;
+  ESP_LOGI(TAG, "Exit ROI center set to: %d", center);
+}
+
+void Roode::set_calibration_attempts(int attempts) {
+  if (attempts > 0 && attempts <= 100) {
+    number_attempts = attempts;
+    ESP_LOGI(TAG, "Calibration attempts set to: %d", attempts);
+  } else {
+    ESP_LOGW(TAG, "Invalid calibration attempts: %d. Must be between 1 and 100", attempts);
+  }
+}
+
+void Roode::reset_people_counter() {
+  if (people_counter != nullptr) {
+    auto call = people_counter->make_call();
+    call.set_value(0);
+    call.perform();
+    ESP_LOGI(TAG, "People counter reset to 0");
+  }
+}
+
+void Roode::adjust_people_counter(int adjustment) {
+  if (people_counter != nullptr) {
+    auto next = people_counter->state + (float) adjustment;
+    auto call = people_counter->make_call();
+    call.set_value(next);
+    call.perform();
+    ESP_LOGI(TAG, "People counter adjusted by %d to %d", adjustment, (int) next);
+  }
+}
+
+// Getter method implementations for percentage calculations
+uint8_t Roode::get_entry_max_threshold_percentage() const {
+  if (entry->threshold->max_percentage.has_value()) {
+    return entry->threshold->max_percentage.value();
+  }
+  return (entry->threshold->max * 100) / entry->threshold->idle;
+}
+
+uint8_t Roode::get_entry_min_threshold_percentage() const {
+  if (entry->threshold->min_percentage.has_value()) {
+    return entry->threshold->min_percentage.value();
+  }
+  return (entry->threshold->min * 100) / entry->threshold->idle;
+}
+
+uint8_t Roode::get_exit_max_threshold_percentage() const {
+  if (exit->threshold->max_percentage.has_value()) {
+    return exit->threshold->max_percentage.value();
+  }
+  return (exit->threshold->max * 100) / exit->threshold->idle;
+}
+
+uint8_t Roode::get_exit_min_threshold_percentage() const {
+  if (exit->threshold->min_percentage.has_value()) {
+    return exit->threshold->min_percentage.value();
+  }
+  return (exit->threshold->min * 100) / exit->threshold->idle;
+}
 }  // namespace roode
 }  // namespace esphome

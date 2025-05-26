@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "esphome/components/binary_sensor/binary_sensor.h"
+#include "esphome/components/number/number.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/text_sensor/text_sensor.h"
 #include "esphome/core/application.h"
@@ -97,6 +98,46 @@ class Roode : public PollingComponent {
   void set_entry_exit_event_text_sensor(text_sensor::TextSensor *entry_exit_event_sensor_) {
     entry_exit_event_sensor = entry_exit_event_sensor_;
   }
+  
+  // Service methods for runtime configuration
+  void set_sampling_size_service(uint8_t size);
+  void set_max_threshold_percentage(uint8_t percentage);
+  void set_min_threshold_percentage(uint8_t percentage);
+  void set_max_threshold_exact(uint16_t threshold_mm);
+  void set_min_threshold_exact(uint16_t threshold_mm);
+  void set_entry_max_threshold_percentage(uint8_t percentage);
+  void set_entry_min_threshold_percentage(uint8_t percentage);
+  void set_exit_max_threshold_percentage(uint8_t percentage);
+  void set_exit_min_threshold_percentage(uint8_t percentage);
+  void set_entry_max_threshold_exact(uint16_t threshold_mm);
+  void set_entry_min_threshold_exact(uint16_t threshold_mm);
+  void set_exit_max_threshold_exact(uint16_t threshold_mm);
+  void set_exit_min_threshold_exact(uint16_t threshold_mm);
+  void set_roi_size(uint8_t width, uint8_t height);
+  void set_entry_roi_size(uint8_t width, uint8_t height);
+  void set_exit_roi_size(uint8_t width, uint8_t height);
+  void set_entry_roi_center(uint8_t center);
+  void set_exit_roi_center(uint8_t center);
+  void set_calibration_attempts(int attempts);
+  void reset_people_counter();
+  void adjust_people_counter(int adjustment);
+  
+  // Getter methods for current configuration
+  uint8_t get_sampling_size() const { return samples; }
+  uint8_t get_entry_max_threshold_percentage() const;
+  uint8_t get_entry_min_threshold_percentage() const;
+  uint8_t get_exit_max_threshold_percentage() const;
+  uint8_t get_exit_min_threshold_percentage() const;
+  uint16_t get_entry_max_threshold() const { return entry->threshold->max; }
+  uint16_t get_entry_min_threshold() const { return entry->threshold->min; }
+  uint16_t get_exit_max_threshold() const { return exit->threshold->max; }
+  uint16_t get_exit_min_threshold() const { return exit->threshold->min; }
+  uint16_t get_entry_idle_distance() const { return entry->threshold->idle; }
+  uint16_t get_exit_idle_distance() const { return exit->threshold->idle; }
+  int get_calibration_attempts() const { return number_attempts; }
+  bool get_invert_direction() const { return invert_direction_; }
+  Orientation get_orientation() const { return orientation_; }
+  
   void recalibration();
   Zone *entry = new Zone(0);
   Zone *exit = new Zone(1);

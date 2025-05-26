@@ -35,6 +35,8 @@ api:
     - service: recalibrate
       then:
         - lambda: "id(roode_platform)->recalibration();"
+    
+    # General threshold configuration
     - service: set_max_threshold
       variables:
         newThreshold: int
@@ -45,6 +47,116 @@ api:
         newThreshold: int
       then:
         - lambda: "id(roode_platform)->set_min_threshold_percentage(newThreshold);id(roode_platform)->recalibration();"
+    
+    # Exact threshold configuration (in mm)
+    - service: set_max_threshold_exact
+      variables:
+        threshold_mm: int
+      then:
+        - lambda: "id(roode_platform)->set_max_threshold_exact(threshold_mm);"
+    - service: set_min_threshold_exact
+      variables:
+        threshold_mm: int
+      then:
+        - lambda: "id(roode_platform)->set_min_threshold_exact(threshold_mm);"
+    
+    # Entry zone threshold configuration
+    - service: set_entry_max_threshold_percentage
+      variables:
+        percentage: int
+      then:
+        - lambda: "id(roode_platform)->set_entry_max_threshold_percentage(percentage);"
+    - service: set_entry_min_threshold_percentage
+      variables:
+        percentage: int
+      then:
+        - lambda: "id(roode_platform)->set_entry_min_threshold_percentage(percentage);"
+    - service: set_entry_max_threshold_exact
+      variables:
+        threshold_mm: int
+      then:
+        - lambda: "id(roode_platform)->set_entry_max_threshold_exact(threshold_mm);"
+    - service: set_entry_min_threshold_exact
+      variables:
+        threshold_mm: int
+      then:
+        - lambda: "id(roode_platform)->set_entry_min_threshold_exact(threshold_mm);"
+    
+    # Exit zone threshold configuration
+    - service: set_exit_max_threshold_percentage
+      variables:
+        percentage: int
+      then:
+        - lambda: "id(roode_platform)->set_exit_max_threshold_percentage(percentage);"
+    - service: set_exit_min_threshold_percentage
+      variables:
+        percentage: int
+      then:
+        - lambda: "id(roode_platform)->set_exit_min_threshold_percentage(percentage);"
+    - service: set_exit_max_threshold_exact
+      variables:
+        threshold_mm: int
+      then:
+        - lambda: "id(roode_platform)->set_exit_max_threshold_exact(threshold_mm);"
+    - service: set_exit_min_threshold_exact
+      variables:
+        threshold_mm: int
+      then:
+        - lambda: "id(roode_platform)->set_exit_min_threshold_exact(threshold_mm);"
+    
+    # ROI configuration
+    - service: set_roi_size
+      variables:
+        width: int
+        height: int
+      then:
+        - lambda: "id(roode_platform)->set_roi_size(width, height);"
+    - service: set_entry_roi_size
+      variables:
+        width: int
+        height: int
+      then:
+        - lambda: "id(roode_platform)->set_entry_roi_size(width, height);"
+    - service: set_exit_roi_size
+      variables:
+        width: int
+        height: int
+      then:
+        - lambda: "id(roode_platform)->set_exit_roi_size(width, height);"
+    - service: set_entry_roi_center
+      variables:
+        center: int
+      then:
+        - lambda: "id(roode_platform)->set_entry_roi_center(center);"
+    - service: set_exit_roi_center
+      variables:
+        center: int
+      then:
+        - lambda: "id(roode_platform)->set_exit_roi_center(center);"
+    
+    # Sampling configuration
+    - service: set_sampling_size
+      variables:
+        size: int
+      then:
+        - lambda: "id(roode_platform)->set_sampling_size_service(size);"
+    
+    # Calibration configuration
+    - service: set_calibration_attempts
+      variables:
+        attempts: int
+      then:
+        - lambda: "id(roode_platform)->set_calibration_attempts(attempts);"
+    
+    # People counter management
+    - service: reset_people_counter
+      then:
+        - lambda: "id(roode_platform)->reset_people_counter();"
+    - service: adjust_people_counter
+      variables:
+        adjustment: int
+      then:
+        - lambda: "id(roode_platform)->adjust_people_counter(adjustment);"
 
 ota:
   password: !secret ota_password
